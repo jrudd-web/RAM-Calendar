@@ -1,0 +1,623 @@
+/* RAM Planner - Franklin-inspired field service management */
+/* High contrast, clean typography, mobile-first */
+
+:root {
+  --bg: #f5f0e8;
+  --bg-card: #ffffff;
+  --text: #1a1a1a;
+  --text-light: #666666;
+  --gold: #c8a84e;
+  --gold-light: #f0e6c8;
+  --red: #c0392b;
+  --red-light: #fce4e1;
+  --green: #27ae60;
+  --green-light: #e8f8ef;
+  --blue: #2980b9;
+  --border: #d4c9b0;
+  --divider: #1a1a1a;
+  --tab-bg: #1a1a1a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Georgia', serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  padding-bottom: 70px; /* space for tab bar */
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: var(--text-light);
+}
+
+/* Page header - Franklin date header style */
+.page-header {
+  background: var(--text);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.page-header .date-display {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Date navigation */
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.date-nav button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.date-nav .current-date {
+  font-size: 16px;
+  font-weight: 600;
+  min-width: 180px;
+  text-align: center;
+}
+
+/* Section divider - heavy line like Franklin */
+.section-divider {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background: var(--bg);
+  border-top: 3px solid var(--divider);
+  border-bottom: 1px solid var(--border);
+}
+
+.section-divider h2 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text);
+}
+
+.section-divider .count {
+  margin-left: 8px;
+  background: var(--gold);
+  color: white;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.section-divider .count.red {
+  background: var(--red);
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  margin: 0 12px 8px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid transparent;
+}
+
+.card.appointment {
+  border-left-color: var(--gold);
+}
+
+.card.job {
+  border-left-color: var(--text);
+}
+
+.card.rollover {
+  border-left-color: var(--red);
+  background: #fffaf5;
+}
+
+.card.quote {
+  border-left-color: var(--red);
+}
+
+.card.complete {
+  opacity: 0.5;
+  border-left-color: var(--green);
+}
+
+/* Task row - checkbox style */
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.task-checkbox {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  background: white;
+}
+
+.task-checkbox:active {
+  background: var(--green-light);
+}
+
+.task-checkbox.checked {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-info .client {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.task-info .description {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+.task-info .meta {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 4px;
+  display: flex;
+  gap: 8px;
+}
+
+/* Tags */
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 6px;
+}
+
+.tag.rollover {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.tag.quote {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.tag.weekly {
+  background: var(--gold-light);
+  color: #8a6d1b;
+}
+
+.tag.monthly {
+  background: #eee;
+  color: #333;
+}
+
+/* Appointment time slot */
+.appt-time {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.appt-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.appt-client {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/* Timeline bar for appointments */
+.timeline-bar {
+  width: 3px;
+  background: var(--gold);
+  margin-right: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  min-height: 40px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--text);
+  color: white;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: white;
+}
+
+.btn-red {
+  background: var(--red);
+  color: white;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--border);
+  color: var(--text);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn-block {
+  width: 100%;
+  justify-content: center;
+}
+
+/* FAB - floating action button */
+.fab {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(200,168,78,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+/* Modal / slide-up panel */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  border-radius: 16px 16px 0 0;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 4px;
+}
+
+/* Form fields */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  font-size: 15px;
+  color: var(--text);
+  background: white;
+}
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+/* Checkbox field */
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-field label {
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+/* Filter pills */
+.filter-pills {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  overflow-x: auto;
+}
+
+.filter-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filter-pill.active {
+  background: var(--text);
+  color: white;
+  border-color: var(--text);
+}
+
+/* Invoice status badges */
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.unbilled {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.status-badge.sent {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+/* Login page */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--text);
+}
+
+.login-page h1 {
+  color: var(--gold);
+  font-size: 28px;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.login-page .subtitle {
+  color: #999;
+  font-size: 13px;
+  margin-bottom: 40px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 320px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 2px solid #333;
+  border-radius: 6px;
+  font-size: 16px;
+  background: #2a2a2a;
+  color: white;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.login-form button {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.login-error {
+  color: var(--red);
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Week strip for schedule */
+.week-strip {
+  display: flex;
+  background: var(--text);
+  padding: 8px 12px 12px;
+  gap: 4px;
+}
+
+.week-day {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #999;
+}
+
+.week-day.active {
+  background: var(--gold);
+  color: white;
+}
+
+.week-day.has-items::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+  margin: 4px auto 0;
+}
+
+.week-day.active.has-items::after {
+  background: white;
+}
+
+.week-day .day-name {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.week-day .day-num {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* Scrollable content area */
+.scroll-section {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 12px;
+}

@@ -1,0 +1,8 @@
+{
+  "short_name": "RAM Planner",
+  "name": "RAM Planner - Field Service Management",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1a1a1a",
+  "background_color": "#f5f0e8"
+}

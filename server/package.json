@@ -1,0 +1,23 @@
+{
+  "name": "ram-planner-api",
+  "version": "1.0.0",
+  "description": "RAM Planner - Franklin-style field service management API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "migrate": "node db/migrate.js",
+    "seed": "node db/seed.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
