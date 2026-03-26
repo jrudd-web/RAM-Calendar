@@ -11,7 +11,10 @@ async function request(path, options = {}) {
   });
 
   if (res.status === 401) {
-    window.location.href = '/login';
+    // Don't redirect on auth check — let App.js handle showing login
+    if (path !== '/api/auth/me') {
+      window.location.href = '/';
+    }
     throw new Error('Not authenticated');
   }
 
