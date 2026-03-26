@@ -8,9 +8,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Database connection
+const dbUrl = process.env.DATABASE_URL;
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false
+  connectionString: dbUrl,
+  ssl: false
 });
 
 pool.query('SELECT NOW()', (err, res) => {
