@@ -56,9 +56,15 @@ router.get('/:date', requireAuth, async (req, res) => {
 router.post('/generate/:date', requireAuth, async (req, res) => {
   const db = req.app.locals.db;
   const { date } = req.params;
-  const targetDate = new Date(date);
+  // Parse date string directly to avoid timezone issues
+  // date format is YYYY-MM-DD
+  const parts = date.split('-');
+  const year = parseInt(parts[0]);
+  const month = parseInt(parts[1]) - 1; // JS months are 0-indexed
+  const day = parseInt(parts[2]);
+  const targetDate = new Date(year, month, day);
   const dayOfWeek = targetDate.getDay(); // 0=Sun, 1=Mon, etc.
-  const dayOfMonth = targetDate.getDate();
+  const dayOfMonth = day;
 
   try {
     // Find contracts that should generate jobs for this date

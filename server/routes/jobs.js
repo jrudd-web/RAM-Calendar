@@ -12,7 +12,7 @@ router.get('/', requireAuth, async (req, res) => {
       SELECT j.*, cl.name as client_name, u.name as assigned_user_name,
              cb.name as completed_by_name
       FROM jobs j
-      JOIN clients cl ON j.client_id = cl.id
+      LEFT JOIN clients cl ON j.client_id = cl.id
       LEFT JOIN users u ON j.assigned_user_id = u.id
       LEFT JOIN users cb ON j.completed_by_user_id = cb.id
       WHERE 1=1

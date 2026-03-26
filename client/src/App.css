@@ -324,10 +324,17 @@ body {
 }
 
 /* FAB - floating action button */
-.fab {
+.fab-group {
   position: fixed;
   bottom: 80px;
   right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 50;
+}
+
+.fab {
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -340,7 +347,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+}
+
+.fab.fab-primary {
+  background: var(--gold);
+}
+
+.fab.fab-secondary {
+  background: var(--text);
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  align-self: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* Modal / slide-up panel */

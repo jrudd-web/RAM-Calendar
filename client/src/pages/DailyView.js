@@ -25,7 +25,8 @@ function formatTime(iso) {
 export default function DailyView({ user }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [data, setData] = useState({ appointments: [], jobs: [], unbilled_count: 0 });
-  const [showApptModal, setShowApptModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addType, setAddType] = useState('appointment');
   const [selectedAppt, setSelectedAppt] = useState(null);
 
   const dateStr = formatDate(currentDate);
@@ -192,15 +193,31 @@ export default function DailyView({ user }) {
         )}
       </div>
 
-      {/* FAB to add */}
-      <button className="fab" onClick={() => setShowApptModal(true)}>+</button>
+      {/* FAB menu - two buttons for appointment and task */}
+      <div className="fab-group">
+        <button
+          className="fab fab-secondary"
+          onClick={() => { setAddType('job'); setShowAddModal(true); }}
+          title="Add Task"
+        >
+          &#9745;
+        </button>
+        <button
+          className="fab fab-primary"
+          onClick={() => { setAddType('appointment'); setShowAddModal(true); }}
+          title="Add Appointment"
+        >
+          +
+        </button>
+      </div>
 
-      {/* Add Appointment Modal */}
-      {showApptModal && (
-        <AddAppointmentModal
+      {/* Add Modal - supports both appointment and task */}
+      {showAddModal && (
+        <AddModal
           date={dateStr}
           userId={user.id}
-          onClose={() => setShowApptModal(false)}
+          initialType={addType}
+          onClose={() => setShowAddModal(false)}
           onSaved={loadDay}
         />
       )}
@@ -217,33 +234,47 @@ export default function DailyView({ user }) {
   );
 }
 
-function AddAppointmentModal({ date, userId, onClose, onSaved }) {
+function AddModal({ date, userId, initialType, onClose, onSaved }) {
+  const [type, setType] = useState(initialType || 'appointment');
   const [title, setTitle] = useState('');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
   const [notes, setNotes] = useState('');
   const [clients, setClients] = useState([]);
+  const [users, setUsers] = useState([]);
   const [clientId, setClientId] = useState('');
+  const [assignedUserId, setAssignedUserId] = useState(userId.toString());
+  const [description, setDescription] = useState('');
 
   useEffect(() => {
     api.getClients().then(setClients).catch(() => {});
+    api.getUsers().then(setUsers).catch(() => {});
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.createAppointment({
-        user_id: userId,
-        client_id: clientId || null,
-        title,
-        start_time: `${date}T${startTime}:00`,
-        end_time: `${date}T${endTime}:00`,
-        notes,
-      });
+      if (type === 'appointment') {
+        await api.createAppointment({
+          user_id: userId,
+          client_id: clientId || null,
+          title,
+          start_time: `${date}T${startTime}:00`,
+          end_time: `${date}T${endTime}:00`,
+          notes,
+        });
+      } else {
+        await api.createJob({
+          client_id: clientId || null,
+          description,
+          assigned_user_id: parseInt(assignedUserId),
+          scheduled_date: date,
+        });
+      }
       onSaved();
       onClose();
     } catch (err) {
-      alert('Failed to create appointment: ' + err.message);
+      alert('Failed to save: ' + err.message);
     }
   };
 
@@ -251,36 +282,72 @@ function AddAppointmentModal({ date, userId, onClose, onSaved }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>New Appointment</h3>
+          <h3>Add to Today</h3>
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
+
+        <div className="filter-pills" style={{ padding: '0 0 16px' }}>
+          <button className={`filter-pill ${type === 'appointment' ? 'active' : ''}`} onClick={() => setType('appointment')}>
+            Appointment
+          </button>
+          <button className={`filter-pill ${type === 'job' ? 'active' : ''}`} onClick={() => setType('job')}>
+            Task
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Title</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} required />
-          </div>
-          <div className="form-group">
-            <label>Client</label>
-            <select value={clientId} onChange={e => setClientId(e.target.value)}>
-              <option value="">-- No client --</option>
-              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label>Start</label>
-              <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
-            </div>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label>End</label>
-              <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} />
-            </div>
-          </div>
-          <div className="form-group">
-            <label>Prep Notes</label>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notes for before the appointment..." />
-          </div>
-          <button type="submit" className="btn btn-gold btn-block">Add Appointment</button>
+          {type === 'appointment' ? (
+            <>
+              <div className="form-group">
+                <label>Title</label>
+                <input value={title} onChange={e => setTitle(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Client</label>
+                <select value={clientId} onChange={e => setClientId(e.target.value)}>
+                  <option value="">-- No client --</option>
+                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Start</label>
+                  <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>End</label>
+                  <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Prep Notes</label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notes for before the appointment..." />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="form-group">
+                <label>Client</label>
+                <select value={clientId} onChange={e => setClientId(e.target.value)}>
+                  <option value="">-- No client --</option>
+                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Task Description</label>
+                <textarea value={description} onChange={e => setDescription(e.target.value)} required placeholder="What needs to be done..." />
+              </div>
+              <div className="form-group">
+                <label>Assign To</label>
+                <select value={assignedUserId} onChange={e => setAssignedUserId(e.target.value)}>
+                  {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                </select>
+              </div>
+            </>
+          )}
+          <button type="submit" className="btn btn-gold btn-block">
+            Add {type === 'appointment' ? 'Appointment' : 'Task'}
+          </button>
         </form>
       </div>
     </div>
