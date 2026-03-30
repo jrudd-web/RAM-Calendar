@@ -245,11 +245,54 @@ function AddModal({ date, userId, initialType, onClose, onSaved }) {
   const [clientId, setClientId] = useState('');
   const [assignedUserId, setAssignedUserId] = useState(userId.toString());
   const [description, setDescription] = useState('');
+  const [showNewClient, setShowNewClient] = useState(false);
+  const [newClientName, setNewClientName] = useState('');
+  const [newClientAddress, setNewClientAddress] = useState('');
+  const [newClientPhone, setNewClientPhone] = useState('');
+  const [newClientEmail, setNewClientEmail] = useState('');
+
+  const loadClients = () => {
+    api.getClients().then(setClients).catch(() => {});
+  };
 
   useEffect(() => {
-    api.getClients().then(setClients).catch(() => {});
+    loadClients();
     api.getUsers().then(setUsers).catch(() => {});
   }, []);
+
+  const handleClientChange = (val) => {
+    if (val === '__new__') {
+      setShowNewClient(true);
+      setClientId('');
+    } else {
+      setShowNewClient(false);
+      setClientId(val);
+    }
+  };
+
+  const handleAddClient = async () => {
+    if (!newClientName.trim()) {
+      alert('Client name is required');
+      return;
+    }
+    try {
+      const newClient = await api.createClient({
+        name: newClientName.trim(),
+        address: newClientAddress.trim(),
+        phone: newClientPhone.trim(),
+        email: newClientEmail.trim(),
+      });
+      setClients(prev => [...prev, newClient].sort((a, b) => a.name.localeCompare(b.name)));
+      setClientId(newClient.id.toString());
+      setShowNewClient(false);
+      setNewClientName('');
+      setNewClientAddress('');
+      setNewClientPhone('');
+      setNewClientEmail('');
+    } catch (err) {
+      alert('Failed to create client: ' + err.message);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -278,6 +321,47 @@ function AddModal({ date, userId, initialType, onClose, onSaved }) {
     }
   };
 
+  const clientSelect = (
+    <div className="form-group">
+      <label>Client</label>
+      <select value={showNewClient ? '__new__' : clientId} onChange={e => handleClientChange(e.target.value)}>
+        <option value="">-- No client --</option>
+        {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        <option value="__new__">+ Add New Client</option>
+      </select>
+    </div>
+  );
+
+  const newClientForm = showNewClient && (
+    <div style={{ background: '#f9f6ef', border: '2px solid #c8a84e', borderRadius: 6, padding: 12, marginBottom: 14 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: '#8a6d1b', marginBottom: 8 }}>
+        New Client
+      </div>
+      <div className="form-group">
+        <label>Name *</label>
+        <input value={newClientName} onChange={e => setNewClientName(e.target.value)} placeholder="Client name" />
+      </div>
+      <div className="form-group">
+        <label>Address</label>
+        <input value={newClientAddress} onChange={e => setNewClientAddress(e.target.value)} placeholder="Street address" />
+      </div>
+      <div style={{ display: 'flex', gap: 12 }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Phone</label>
+          <input value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} placeholder="Phone" />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Email</label>
+          <input value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" />
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button type="button" className="btn btn-gold btn-sm" onClick={handleAddClient}>Save Client</button>
+        <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowNewClient(false)}>Cancel</button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -302,13 +386,8 @@ function AddModal({ date, userId, initialType, onClose, onSaved }) {
                 <label>Title</label>
                 <input value={title} onChange={e => setTitle(e.target.value)} required />
               </div>
-              <div className="form-group">
-                <label>Client</label>
-                <select value={clientId} onChange={e => setClientId(e.target.value)}>
-                  <option value="">-- No client --</option>
-                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
+              {clientSelect}
+              {newClientForm}
               <div style={{ display: 'flex', gap: 12 }}>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>Start</label>
@@ -326,13 +405,8 @@ function AddModal({ date, userId, initialType, onClose, onSaved }) {
             </>
           ) : (
             <>
-              <div className="form-group">
-                <label>Client</label>
-                <select value={clientId} onChange={e => setClientId(e.target.value)}>
-                  <option value="">-- No client --</option>
-                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
+              {clientSelect}
+              {newClientForm}
               <div className="form-group">
                 <label>Task Description</label>
                 <textarea value={description} onChange={e => setDescription(e.target.value)} required placeholder="What needs to be done..." />
